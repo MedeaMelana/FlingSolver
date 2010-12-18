@@ -11,6 +11,21 @@ import Data.Function (on)
 import Data.Tree
 import Data.Maybe (fromJust)
 
+
+-- Example puzzles
+
+example0 :: Game
+example0 = [(1,4),(1,5),(2,1),(2,5),(5,5),(7,2)]
+
+example1 :: Game
+example1 = [(0,0),(1,2),(2,0),(3,1),(6,3),(7,1)]
+
+puzzle9_1 :: Game
+puzzle9_1 = [(0,0),(0,2),(1,6),(2,6),(4,1),(5,2),(6,5),(7,3)]
+
+
+-- Some types
+
 type Point = (Y, X)
 type Game = [Point]
 data Move = Move Point Dir deriving (Eq, Show, Read)
@@ -19,13 +34,8 @@ type Row = [Int]
 type X = Int
 type Y = Int
 
-dirPoints :: [(Dir, Point)]
-dirPoints =
-  [ (North, ((-1), 0))
-  , (East, (0,1))
-  , (South, (1,0))
-  , (West, (0,(-1)))
-  ]
+
+-- Transforming stuff
 
 type Transformation = [Point -> Point]
 
@@ -48,14 +58,25 @@ instance Transform Dir where
       pointToDir = fromJust . flip lookup (map swap dirPoints)
       swap (x, y) = (y, x)
 
-example0 :: Game
-example0 = [(1,4),(1,5),(2,1),(2,5),(5,5),(7,2)]
+      dirPoints :: [(Dir, Point)]
+      dirPoints =
+        [ (North, ((-1), 0))
+        , (East, (0,1))
+        , (South, (1,0))
+        , (West, (0,(-1)))
+        ]
 
-example1 :: Game
-example1 = [(0,0),(1,2),(2,0),(3,1),(6,3),(7,1)]
+transformations2D :: [Transformation]
+transformations2D = subsequences [mirrorX, mirrorDiag]
 
-puzzle9_1 :: Game
-puzzle9_1 = [(0,0),(0,2),(1,6),(2,6),(4,1),(5,2),(6,5),(7,3)]
+mirrorX :: Point -> Point
+mirrorX = second negate
+
+mirrorDiag :: Point -> Point
+mirrorDiag (x,y) = (y,x)
+
+
+-- Top-level API
 
 printSolutions :: Game -> IO ()
 printSolutions = putStr . drawForest . (fmap . fmap) show . solutions . search
@@ -73,10 +94,13 @@ solutions = concatMap f
 search :: Game -> Forest (Move, Game)
 search = map (\(m, g') -> Node (m, g') (search g')) . moves
 
+
+-- Generating moves
+
 -- | Noemt gegeven een state alle mogelijke zetten in die state, elk gekoppeld
 -- met de bijbehorende nieuwe state.
 moves :: Game -> [(Move, Game)]
-moves g = concatMap f xforms
+moves g = concatMap f transformations2D
   where
     f xf    = map (transform (reverse xf) *** transform (reverse xf))
             . (map . second) fromRows
@@ -84,15 +108,6 @@ moves g = concatMap f xforms
             . toRows
             . map (transform xf)
             $ g
-
-xforms :: [Transformation]
-xforms = subsequences [mirrorX, mirrorDiag]
-
-mirrorX :: Point -> Point
-mirrorX = second negate
-
-mirrorDiag :: Point -> Point
-mirrorDiag (x,y) = (y,x)
 
 groupOn :: (Eq b) => (a -> b) -> [a] -> [[a]]
 groupOn f = groupBy ((==) `on` f)
