@@ -141,6 +141,7 @@ shifts ((y, row) : yrows) =
 -- | Probeert voor 1 rij alle balletjes naar rechts te rollen (per balletje shift1).
 shift :: Row -> [(X, Row)]
 shift []       = []
+shift [x,y] | x + 2 == y && y <= 0 = []
 shift (x : xs) = maybe id (:) (shift1 (x : xs)) ((fmap . second) (x :) (shift xs))
 
 -- | Probeert voor 1 rij het eerste balletje naar rechts te rollen.
