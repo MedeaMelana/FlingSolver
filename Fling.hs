@@ -10,7 +10,7 @@ import Data.Tree
 
 type Point = (Y, X)
 type GameState = [Point]
-type Move = (Point, Dir)
+data Move = Move Point Dir deriving Show
 type Dir = Point
 type Row = [Int]
 type X = Int
@@ -37,7 +37,7 @@ search = map (\(m, g') -> Node (m, g') (search g')) . moves
 moves :: GameState -> [(Move, GameState)]
 moves g = concatMap f xforms
   where
-    f xform = map ((xformFrom xform *** xformFrom xform) *** map (xformFrom xform))
+    f xform = map ((\(Move pt dir) -> Move (xformFrom xform pt) (xformFrom xform dir)) *** map (xformFrom xform))
             . (map . second) fromRows
             . shifts
             . toRows
@@ -71,7 +71,7 @@ fromRows = concatMap (\(y, row) -> map (y,) row)
 -- | Probeert voor alle rijen alle bolletjes naar rechts te rollen.
 shifts :: [(Y, Row)] -> [(Move, [(Y, Row)])]
 shifts [] = []
-shifts ((y, row) : yrows) = map (\(x, r) -> (((y, x), (0, 1)), (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
+shifts ((y, row) : yrows) = map (\(x, r) -> ((Move (y, x) (0, 1)), (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
 
 -- | Probeert voor 1 rij alle balletjes naar rechts te rollen (per balletje shift1).
 shift :: Row -> [(X, Row)]
