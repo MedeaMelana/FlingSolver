@@ -104,14 +104,14 @@ search = map (\(m, g') -> Node (m, g') (search g')) . moves
 moves :: Game -> [(Move, Game)]
 moves g = concatMap f transformations2D
   where
-    f xf    = map (transform (reverse xf) *** transform (reverse xf))
-            . (map . second) fromRows
-            . shifts
-            . toRows
-            . map (transform xf)
-            $ g
+    f xf = map (transform (reverse xf) *** transform (reverse xf))
+         . (map . second) fromRows
+         . shifts
+         . toRows
+         . map (transform xf)
+         $ g
 
-groupOn :: (Eq b) => (a -> b) -> [a] -> [[a]]
+groupOn :: Eq b => (a -> b) -> [a] -> [[a]]
 groupOn f = groupBy ((==) `on` f)
 
 toRows :: Game -> [(Y, Row)]
