@@ -83,9 +83,11 @@ mirrorDiag (x,y) = (y,x)
 
 -- Top-level API
 
+-- | Print a neat forest of winning strategies.
 printSolutions :: Game -> IO ()
 printSolutions = putStr . drawForest . (fmap . fmap) show . solutions . search
 
+-- | Prune a game tree to only keep the winning paths.
 solutions :: Forest (Move, Game) -> Forest (Move, Game)
 solutions = concatMap f
   where
@@ -98,6 +100,7 @@ solutions = concatMap f
         [] -> []
         cs' -> [Node mg cs']
 
+-- | Build move tree from a starting position.
 search :: Game -> Forest (Move, Game)
 search = map (\(m, g') -> Node (m, g') (search g')) . moves
 
