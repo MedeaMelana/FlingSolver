@@ -18,6 +18,9 @@ example0 = mkGame [[1,4],[1,5],[2,1],[2,5],[5,5],[7,2]]
 example1 :: Game
 example1 = mkGame [[0,0],[1,2],[2,0],[3,1],[6,3],[7,1]]
 
+example2 :: Game
+example2 = [(1,4),(6,4),(7,4)]
+
 puzzle9_1 :: Game
 puzzle9_1 = mkGame [[0,0],[0,2],[1,6],[2,6],[4,1],[5,2],[6,5],[7,3]]
 
@@ -168,7 +171,9 @@ shift (x : xs) = maybe id (:) (shift1 (x : xs)) ((fmap . second) (x :) (shift xs
 
 -- | Probeert voor 1 rij het eerste balletje naar rechts te rollen.
 shift1 :: Row -> Maybe (X, Row)
-shift1 (x : y : zs)
-  | x + 1 == y  = Nothing
-  | otherwise   = Just (x, map pred (y : zs))
-shift1 _        = Nothing
+shift1 (x : y : [])
+  | x + 1 == y      = Nothing
+  | otherwise       = Just (x, [pred y])
+shift1 (x : y : zs) = Just (x, map pred (y : zs))
+shift1 _            = Nothing
+
