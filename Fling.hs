@@ -1,4 +1,5 @@
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Fling where
 
@@ -17,6 +18,22 @@ type X = Int
 type Y = Int
 
 type Transformation = [Point -> Point]
+
+class Transform a where
+  xfTo   :: Transformation -> a -> a
+  xfFrom :: Transformation -> a -> a
+
+instance Transform Point where
+  xfTo   = foldr (.) id
+  xfFrom = xfTo . reverse
+
+instance Transform a => Transform [a] where
+  xfTo   xf = map (xfTo xf)
+  xfFrom xf = map (xfFrom xf)
+
+instance Transform Move where
+  xfTo   xf (Move pt dir) = Move (xfTo xf pt)   (xfTo xf dir)
+  xfFrom xf (Move pt dir) = Move (xfFrom xf pt) (xfFrom xf dir)
 
 example0 :: GameState
 example0 = [(1,4),(1,5),(2,1),(2,5),(5,5),(7,2)]
@@ -45,21 +62,15 @@ search = map (\(m, g') -> Node (m, g') (search g')) . moves
 moves :: GameState -> [(Move, GameState)]
 moves g = concatMap f xforms
   where
-    f xform = map ((\(Move pt dir) -> Move (xformFrom xform pt) (xformFrom xform dir)) *** map (xformFrom xform))
+    f xf    = map (xfFrom xf *** xfFrom xf)
             . (map . second) fromRows
             . shifts
             . toRows
-            . map (xformTo xform)
+            . map (xfTo xf)
             $ g
 
 xforms :: [Transformation]
 xforms = subsequences [mirrorX, mirrorDiag]
-
-xformTo :: Transformation -> Point -> Point
-xformTo = foldr (.) id
-
-xformFrom :: Transformation -> Point -> Point
-xformFrom = xformTo . reverse
 
 mirrorX :: Point -> Point
 mirrorX = second negate
