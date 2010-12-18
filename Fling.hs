@@ -1,5 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Fling where
 
@@ -12,10 +13,19 @@ import Data.Tree
 type Point = (Y, X)
 type GameState = [Point]
 data Move = Move Point Dir deriving Show
-type Dir = Point
+newtype Dir = Dir Point deriving Transform
 type Row = [Int]
 type X = Int
 type Y = Int
+
+instance Show Dir where
+  showsPrec _ (Dir d) =
+    showString $ case d of
+      (0,1)     -> "Right"
+      (0,(-1))  -> "Left"
+      (1,0)     -> "Down"
+      ((-1),0)  -> "Up"
+      _         -> error ("Not a valid direction: " ++ show d)
 
 type Transformation = [Point -> Point]
 
@@ -90,7 +100,10 @@ fromRows = concatMap (\(y, row) -> map (y,) row)
 -- | Probeert voor alle rijen alle bolletjes naar rechts te rollen.
 shifts :: [(Y, Row)] -> [(Move, [(Y, Row)])]
 shifts [] = []
-shifts ((y, row) : yrows) = map (\(x, r) -> ((Move (y, x) (0, 1)), (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
+shifts ((y, row) : yrows) = map (\(x, r) -> ((Move (y, x) right), (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
+
+right :: Dir
+right = Dir (0, 1)
 
 -- | Probeert voor 1 rij alle balletjes naar rechts te rollen (per balletje shift1).
 shift :: Row -> [(X, Row)]
