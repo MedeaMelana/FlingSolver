@@ -84,8 +84,10 @@ printSolutions = putStr . drawForest . (fmap . fmap) show . solutions . search
 solutions :: Forest (Move, Game) -> Forest (Move, Game)
 solutions = concatMap f
   where
+    -- One furball left: we have a winning position.
     f n@(Node (_, [_]) []) = [n]
-    f (Node _ []) = []
+
+    -- Multiple furballs left: recurse.
     f (Node mg cs) =
       case solutions cs of
         [] -> []
