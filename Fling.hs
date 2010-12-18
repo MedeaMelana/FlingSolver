@@ -4,7 +4,6 @@
 
 module Fling where
 
-import Control.Monad ()
 import Control.Arrow (second, (***))
 import Data.List (sort, groupBy, subsequences)
 import Data.Function (on)
