@@ -8,7 +8,7 @@ import Control.Monad ()
 import Control.Arrow (second, (***))
 import Data.List (sort, groupBy, subsequences)
 import Data.Function (on)
-import Data.Tree
+import Data.Tree (Tree(..), Forest, drawForest)
 import Data.Maybe (fromJust)
 
 
