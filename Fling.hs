@@ -11,7 +11,7 @@ import Data.Function (on)
 import Data.Tree
 
 type Point = (Y, X)
-type GameState = [Point]
+type Game = [Point]
 data Move = Move Point Dir deriving Show
 newtype Dir = Dir Point deriving Transform
 type Row = [Int]
@@ -45,16 +45,16 @@ instance Transform Move where
   xfTo   xf (Move pt dir) = Move (xfTo xf pt)   (xfTo xf dir)
   xfFrom xf (Move pt dir) = Move (xfFrom xf pt) (xfFrom xf dir)
 
-example0 :: GameState
+example0 :: Game
 example0 = [(1,4),(1,5),(2,1),(2,5),(5,5),(7,2)]
 
-example1 :: GameState
+example1 :: Game
 example1 = [(0,0),(1,2),(2,0),(3,1),(6,3),(7,1)]
 
-printSolutions :: GameState -> IO ()
+printSolutions :: Game -> IO ()
 printSolutions = putStr . drawForest . (fmap . fmap) show . solutions . search
 
-solutions :: Forest (Move, GameState) -> Forest (Move, GameState)
+solutions :: Forest (Move, Game) -> Forest (Move, Game)
 solutions = concatMap f
   where
     f n@(Node (_, [_]) []) = [n]
@@ -64,12 +64,12 @@ solutions = concatMap f
         [] -> []
         cs' -> [Node mg cs']
 
-search :: GameState -> Forest (Move, GameState)
+search :: Game -> Forest (Move, Game)
 search = map (\(m, g') -> Node (m, g') (search g')) . moves
 
 -- | Noemt gegeven een state alle mogelijke zetten in die state, elk gekoppeld
 -- met de bijbehorende nieuwe state.
-moves :: GameState -> [(Move, GameState)]
+moves :: Game -> [(Move, Game)]
 moves g = concatMap f xforms
   where
     f xf    = map (xfFrom xf *** xfFrom xf)
@@ -91,10 +91,10 @@ mirrorDiag (x,y) = (y,x)
 groupOn :: (Eq b) => (a -> b) -> [a] -> [[a]]
 groupOn f = groupBy ((==) `on` f)
 
-toRows :: GameState -> [(Y, Row)]
+toRows :: Game -> [(Y, Row)]
 toRows = map (\row -> (fst (head row), map snd row)) . groupOn fst . sort
 
-fromRows :: [(Y, Row)] -> GameState
+fromRows :: [(Y, Row)] -> Game
 fromRows = concatMap (\(y, row) -> map (y,) row)
 
 -- | Probeert voor alle rijen alle bolletjes naar rechts te rollen.
