@@ -26,12 +26,18 @@ puzzle9_1 = [(0,0),(0,2),(1,6),(2,6),(4,1),(5,2),(6,5),(7,3)]
 -- Some types
 
 type Point = (Y, X)
+type X     = Int
+type Y     = Int
+
+type Row = [X]
+
 type Game = [Point]
-data Move = Move Point Dir deriving (Eq, Show, Read)
-data Dir = North | East | South | West deriving (Eq, Show, Read, Enum, Bounded)
-type Row = [Int]
-type X = Int
-type Y = Int
+
+data Move = Move Point Dir
+  deriving (Eq, Show, Read)
+
+data Dir = North | East | South | West
+  deriving (Eq, Show, Read, Enum, Bounded)
 
 
 -- Transforming stuff
