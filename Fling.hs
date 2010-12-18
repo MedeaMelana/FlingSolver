@@ -19,7 +19,7 @@ example1 :: Game
 example1 = mkGame [[0,0],[1,2],[2,0],[3,1],[6,3],[7,1]]
 
 example2 :: Game
-example2 = [(1,4),(6,4),(7,4)]
+example2 = mkGame [[1,4],[6,4],[7,4]]
 
 puzzle9_1 :: Game
 puzzle9_1 = mkGame [[0,0],[0,2],[1,6],[2,6],[4,1],[5,2],[6,5],[7,3]]
