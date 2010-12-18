@@ -121,7 +121,9 @@ fromRows = concatMap (\(y, row) -> map (y,) row)
 -- | Probeert voor alle rijen alle bolletjes naar rechts te rollen.
 shifts :: [(Y, Row)] -> [(Move, [(Y, Row)])]
 shifts [] = []
-shifts ((y, row) : yrows) = map (\(x, r) -> (Move (y, x) East, (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
+shifts ((y, row) : yrows) =
+  map (\(x, r) -> (Move (y, x) East, (y, r) : yrows)) (shift row) ++
+  map (second ((y, row) :)) (shifts yrows)
 
 -- | Probeert voor 1 rij alle balletjes naar rechts te rollen (per balletje shift1).
 shift :: Row -> [(X, Row)]
@@ -130,8 +132,7 @@ shift (x : xs) = maybe id (:) (shift1 (x : xs)) ((fmap . second) (x :) (shift xs
 
 -- | Probeert voor 1 rij het eerste balletje naar rechts te rollen.
 shift1 :: Row -> Maybe (X, Row)
-shift1 [] = Nothing
-shift1 [_] = Nothing
 shift1 (x : y : zs)
   | x + 1 == y  = Nothing
   | otherwise   = Just (x, map pred (y : zs))
+shift1 _        = Nothing
