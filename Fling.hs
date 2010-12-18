@@ -60,10 +60,10 @@ instance Transform Dir where
 
       dirPoints :: [(Dir, Point)]
       dirPoints =
-        [ (North, ((-1), 0))
-        , (East, (0,1))
-        , (South, (1,0))
-        , (West, (0,(-1)))
+        [ (North, (-1,0))
+        , (East,  (0, 1))
+        , (South, (1, 0))
+        , (West,  (0,-1))
         ]
 
 transformations2D :: [Transformation]
@@ -121,7 +121,7 @@ fromRows = concatMap (\(y, row) -> map (y,) row)
 -- | Probeert voor alle rijen alle bolletjes naar rechts te rollen.
 shifts :: [(Y, Row)] -> [(Move, [(Y, Row)])]
 shifts [] = []
-shifts ((y, row) : yrows) = map (\(x, r) -> ((Move (y, x) East), (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
+shifts ((y, row) : yrows) = map (\(x, r) -> (Move (y, x) East, (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
 
 -- | Probeert voor 1 rij alle balletjes naar rechts te rollen (per balletje shift1).
 shift :: Row -> [(X, Row)]
