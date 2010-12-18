@@ -64,16 +64,16 @@ instance Show Dir where
 
 -- Transforming stuff
 
-type Transformation = [Point -> Point]
+type Transformation = Point -> Point
 
 class Transform a where
   transform :: Transformation -> a -> a
 
 instance Transform Furball where
-  transform xf = Furball . foldr (.) id xf . unFurball
+  transform xf = Furball . xf . unFurball
 
 instance Transform Dir where
-  transform xf = Dir     . foldr (.) id xf . unDir
+  transform xf = Dir     . xf . unDir
 
 instance Transform a => Transform [a] where
   transform xf = map (transform xf)
@@ -87,8 +87,8 @@ instance (Transform a, Transform b) => Transform (a, b) where
 
 transformations :: Int -> [(Transformation, Transformation)]
 transformations n = zip
-  [          mx ++ md  | mx <- [[], [mirrorX]], md <- take n $ iterate (   mirrorDiag :) []]
-  [ reverse (mx ++ md) | mx <- [[], [mirrorX]], md <- take n $ iterate (revMirrorDiag :) []]
+  [ mx . md | mx <- [id, mirrorX], md <- take n $ iterate (   mirrorDiag .) id]
+  [ md . mx | mx <- [id, mirrorX], md <- take n $ iterate (revMirrorDiag .) id]
 
 mirrorX :: Point -> Point
 mirrorX [] = []
