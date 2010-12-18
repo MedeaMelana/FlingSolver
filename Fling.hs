@@ -16,6 +16,12 @@ type Row = [Int]
 type X = Int
 type Y = Int
 
+example0 :: GameState
+example0 = [(1,4),(1,5),(2,1),(2,5),(5,5),(7,2)]
+
+example1 :: GameState
+example1 = [(0,0),(1,2),(2,0),(3,1),(6,3),(7,1)]
+
 printSolutions :: GameState -> IO ()
 printSolutions = putStr . drawForest . (fmap . fmap) show . solutions . search
 
