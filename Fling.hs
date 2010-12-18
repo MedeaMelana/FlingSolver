@@ -9,23 +9,23 @@ import Control.Arrow (second, (***))
 import Data.List (sort, groupBy, subsequences)
 import Data.Function (on)
 import Data.Tree
+import Data.Maybe (fromJust)
 
 type Point = (Y, X)
 type Game = [Point]
-data Move = Move Point Dir deriving Show
-newtype Dir = Dir Point deriving Transform
+data Move = Move Point Dir deriving (Eq, Show, Read)
+data Dir = North | East | South | West deriving (Eq, Show, Read, Enum, Bounded)
 type Row = [Int]
 type X = Int
 type Y = Int
 
-instance Show Dir where
-  showsPrec _ (Dir d) =
-    showString $ case d of
-      (0,1)     -> "Right"
-      (0,(-1))  -> "Left"
-      (1,0)     -> "Down"
-      ((-1),0)  -> "Up"
-      _         -> error ("Not a valid direction: " ++ show d)
+dirPoints :: [(Dir, Point)]
+dirPoints =
+  [ (North, ((-1), 0))
+  , (East, (0,1))
+  , (South, (1,0))
+  , (West, (0,(-1)))
+  ]
 
 type Transformation = [Point -> Point]
 
@@ -44,6 +44,13 @@ instance Transform a => Transform [a] where
 instance Transform Move where
   xfTo   xf (Move pt dir) = Move (xfTo xf pt)   (xfTo xf dir)
   xfFrom xf (Move pt dir) = Move (xfFrom xf pt) (xfFrom xf dir)
+
+instance Transform Dir where
+  xfTo   xf = pointToDir . xfTo xf . dirToPoint
+    where
+      dirToPoint = fromJust . flip lookup dirPoints
+      pointToDir = fromJust . flip lookup (map swap dirPoints)
+      swap (x, y) = (y, x)
 
 example0 :: Game
 example0 = [(1,4),(1,5),(2,1),(2,5),(5,5),(7,2)]
@@ -100,10 +107,7 @@ fromRows = concatMap (\(y, row) -> map (y,) row)
 -- | Probeert voor alle rijen alle bolletjes naar rechts te rollen.
 shifts :: [(Y, Row)] -> [(Move, [(Y, Row)])]
 shifts [] = []
-shifts ((y, row) : yrows) = map (\(x, r) -> ((Move (y, x) right), (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
-
-right :: Dir
-right = Dir (0, 1)
+shifts ((y, row) : yrows) = map (\(x, r) -> ((Move (y, x) East), (y, r) : yrows)) (shift row) ++ map (second ((y, row) :)) (shifts yrows)
 
 -- | Probeert voor 1 rij alle balletjes naar rechts te rollen (per balletje shift1).
 shift :: Row -> [(X, Row)]
