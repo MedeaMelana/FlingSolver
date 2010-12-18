@@ -145,7 +145,9 @@ shift (x : xs) = maybe id (:) (shift1 (x : xs)) ((fmap . second) (x :) (shift xs
 
 -- | Probeert voor 1 rij het eerste balletje naar rechts te rollen.
 shift1 :: Row -> Maybe (X, Row)
-shift1 (x : y : zs)
-  | x + 1 == y  = Nothing
-  | otherwise   = Just (x, map pred (y : zs))
-shift1 _        = Nothing
+shift1 (x : y : [])
+  | x + 1 == y      = Nothing
+  | otherwise       = Just (x, [pred y])
+shift1 (x : y : zs) = Just (x, map pred (y : zs))
+shift1 _            = Nothing
+
