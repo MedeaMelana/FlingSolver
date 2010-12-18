@@ -16,6 +16,8 @@ type Row = [Int]
 type X = Int
 type Y = Int
 
+type Transformation = [Point -> Point]
+
 example0 :: GameState
 example0 = [(1,4),(1,5),(2,1),(2,5),(5,5),(7,2)]
 
@@ -50,13 +52,13 @@ moves g = concatMap f xforms
             . map (xformTo xform)
             $ g
 
-xforms :: [[Point -> Point]]
+xforms :: [Transformation]
 xforms = subsequences [mirrorX, mirrorDiag]
 
-xformTo :: [Point -> Point] -> Point -> Point
+xformTo :: Transformation -> Point -> Point
 xformTo = foldr (.) id
 
-xformFrom :: [Point -> Point] -> Point -> Point
+xformFrom :: Transformation -> Point -> Point
 xformFrom = xformTo . reverse
 
 mirrorX :: Point -> Point
