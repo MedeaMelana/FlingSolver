@@ -30,23 +30,19 @@ dirPoints =
 type Transformation = [Point -> Point]
 
 class Transform a where
-  xfTo   :: Transformation -> a -> a
-  xfFrom :: Transformation -> a -> a
+  transform :: Transformation -> a -> a
 
 instance Transform Point where
-  xfTo   = foldr (.) id
-  xfFrom = xfTo . reverse
+  transform = foldr (.) id
 
 instance Transform a => Transform [a] where
-  xfTo   xf = map (xfTo xf)
-  xfFrom xf = map (xfFrom xf)
+  transform xf = map (transform xf)
 
 instance Transform Move where
-  xfTo   xf (Move pt dir) = Move (xfTo xf pt)   (xfTo xf dir)
-  xfFrom xf (Move pt dir) = Move (xfFrom xf pt) (xfFrom xf dir)
+  transform xf (Move pt dir) = Move (transform xf pt) (transform xf dir)
 
 instance Transform Dir where
-  xfTo   xf = pointToDir . xfTo xf . dirToPoint
+  transform xf = pointToDir . transform xf . dirToPoint
     where
       dirToPoint = fromJust . flip lookup dirPoints
       pointToDir = fromJust . flip lookup (map swap dirPoints)
@@ -79,11 +75,11 @@ search = map (\(m, g') -> Node (m, g') (search g')) . moves
 moves :: Game -> [(Move, Game)]
 moves g = concatMap f xforms
   where
-    f xf    = map (xfFrom xf *** xfFrom xf)
+    f xf    = map (transform (reverse xf) *** transform (reverse xf))
             . (map . second) fromRows
             . shifts
             . toRows
-            . map (xfTo xf)
+            . map (transform xf)
             $ g
 
 xforms :: [Transformation]
