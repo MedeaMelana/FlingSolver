@@ -41,24 +41,35 @@ type Game = [Furball]
 data Move = Move Furball Dir
   deriving (Eq, Show)
 
-newtype Dir = Dir { unDir :: Point }
+-- Int is used to indicate dimension.
+-- Negative numbers are reverse direction in same dimension.
+newtype Dir = Dir { dimension :: Int }
   deriving (Eq)
+
+dir2Point :: Dir -> Point
+dir2Point (Dir 0) = []
+dir2Point (Dir x) = replicate (ax - 1) 0 ++ [y]
+  where
+    ax = abs x
+    y  = if x < 0 then -1 else 1
+
+point2Dir :: Point -> Dir
+point2Dir [] = Dir 0
+point2Dir xs = Dir d
+  where
+    (ys, z:_) = break (/= 0) xs
+    d         = if z < 0 then -(length ys + 1) else length ys + 1
 
 instance Show Furball where
   show (Furball pt) = show pt
   
 instance Show Dir where
-  show (Dir [ 0, -1]) = "North"
-  show (Dir [ 1,  0]) = "East"
-  show (Dir [ 0,  1]) = "South"
-  show (Dir [-1,  0]) = "West"
-
-  show (Dir [ 1,  0,  0]) = "Right"
-  show (Dir [-1,  0,  0]) = "Left"
-  show (Dir [ 0,  1,  0]) = "Up"
-  show (Dir [ 0, -1,  0]) = "Down"
-  show (Dir [ 0,  0,  1]) = "Forwards"
-  show (Dir [ 0,  0, -1]) = "Backwards"
+  show (Dir   1)  = "Down"
+  show (Dir (-1)) = "Up"
+  show (Dir   2)  = "Right"
+  show (Dir (-2)) = "Left"
+  show (Dir   3)  = "Forwards"
+  show (Dir (-3)) = "Backwards"
   
   show (Dir vec) = show vec
 
@@ -73,7 +84,7 @@ instance Transform Furball where
   transform xf = Furball . xf . unFurball
 
 instance Transform Dir where
-  transform xf = Dir     . xf . unDir
+  transform xf = point2Dir . xf . dir2Point
 
 instance Transform a => Transform [a] where
   transform xf = map (transform xf)
@@ -161,7 +172,7 @@ shifts ((y, row) : yrows) =
   map (\(x, r) -> (mkMove x y, (y, r) : yrows)) (shift row) ++
   map (second ((y, row) :)) (shifts yrows)
     where
-      mkMove x dims = Move (Furball $ x : dims) (Dir $ 1 : replicate (length dims) 0)
+      mkMove x dims = Move (Furball $ x : dims) (Dir $ length dims)
 
 -- | Probeert voor 1 rij alle balletjes naar rechts te rollen (per balletje shift1).
 shift :: Row -> [(X, Row)]
