@@ -1,0 +1,21 @@
+name:                 Fling
+version:              0.1
+synopsis:             A Fling library
+description:          Library to play and solve Fling.
+license:              BSD3
+license-file:         LICENSE
+author:               Tom Lokhorst,
+                      Sjoerd Visscher,
+                      Martijn van Steenbergen
+maintainer:           martijn@van.steenbergen.nl
+homepage:             https://github.com/MedeaMelana/FlingSolver
+bug-reports:          https://github.com/MedeaMelana/FlingSolver/issues
+stability:            Experimental
+category:             Game
+build-type:           Simple
+cabal-version:        >= 1.6
+
+library
+  exposed-modules:    Fling
+  build-depends:      base >= 3 && < 5,
+                      containers >= 0.3 && < 0.4
